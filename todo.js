@@ -132,43 +132,63 @@ const attachCheckboxHandlers = () => {
   });
 };
 
-//Function to Edit
-const edit = ()=>{
-const pText = document.querySelectorAll('.items__li p')
-const inputText = document.querySelectorAll('.items__input')
-const btnId = document.querySelectorAll('.items__btn')
-let idBtn
-let inputindex
+// Function to handle editing of items
+const edit = () => {
+  // Select all paragraph elements with class 'items__li p'
+  const pText = document.querySelectorAll('.items__li p');
+  
+  // Select all input elements with class 'items__input'
+  const inputText = document.querySelectorAll('.items__input');
+  
+  // Select all button elements with class 'items__btn'
+  const btnId = document.querySelectorAll('.items__btn');
+  
+  // Initialize variables to store button ID and input index
+  let idBtn;
+  let inputindex;
 
+  // Add click event listener to each paragraph element
+  pText.forEach((e, index) => {
+    e.addEventListener('click', () => {
+      // Hide paragraph, show input field, and set focus
+      e.classList.add('noVisible');
+      inputText[index].classList.remove('noVisible');
+      inputText[index].focus();
 
-pText.forEach((e, index)=>{
-  e.addEventListener('click', ()=>{
-    e.classList.add('noVisible');
-    inputText[index].classList.remove('noVisible');
-    inputText[index].focus();
-    idBtn = btnId[index].id
-    console.log("Index do botao"+idBtn);
-    inputindex = index
-    console.log("Index da Input" + inputindex);
-  })
-})
+      // Store the ID of the clicked button and input index
+      idBtn = btnId[index].id;
+      console.log("Button index: " + idBtn);
+      inputindex = index;
+      console.log("Input index: " + inputindex);
+    });
+  });
 
-document.addEventListener('click',(event)=>{
-  pText.forEach((e, index)=>{
-    const item = e.parentElement; 
-    if(!item.contains(event.target)){                
-      inputText[index].classList.add('noVisible');
-      e.classList.remove('noVisible');         
+  // Add global click event listener
+  document.addEventListener('click', (event) => {
+    // Loop through each paragraph and input element
+    pText.forEach((e, index) => {
+      const item = e.parentElement;
+
+      // Check if the clicked element is not within the current item
+      if (!item.contains(event.target)) {
+        // Hide input field, show paragraph
+        inputText[index].classList.add('noVisible');
+        e.classList.remove('noVisible');
+      }
+    });
+
+    // Check if input value has changed
+    if (inputText[inputindex].value !== data[idBtn - 1].title) {
+      // Update data and reset variables
+      data[idBtn - 1].title = inputText[inputindex].value;
+      idBtn = '';
+      inputindex = '';
+      // Call the showItems function with the current page
+      showItems(currentPage);
     }
-  })
-  if(inputText[inputindex].value !==data[idBtn-1].title){
-    data[idBtn-1].title = inputText[inputindex].value;
-    idBtn = ''
-    inputText = ''
-    showItems(currentPage)    
-  }
-} 
-)}
+  });
+};
+
 
 // Attach event listener for adding new item
 document.querySelector('#submit').addEventListener('click', event => {
