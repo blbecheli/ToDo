@@ -45,21 +45,24 @@ const showItems = pageNumber => {
 
   const startIndex = (pageNumber - 1) * 10;
   const endIndex = startIndex + 10;
+  let time = 1
 
   // Loop through items to create and display HTML elements
   for (let i = startIndex; i < endIndex && i < data.length; i++) {
+    
     const item = data[i];
     const completedClass = item.completed ? 'done' : 'noDone';
     const checked = item.completed;
 
     const li = `
-      <li class="items__li ${completedClass}">
+      <li class="items__li ${completedClass}" style="animation: slideInFromRight ${time}s ease-in-out">
         <p>${item.title}</p>
         <input type="text" class="items__input noVisible" value = "${item.title}">
         <input type="checkbox" id="checkbox" name="checkbox" ${checked ? "checked" : ""}>
         <button class="items__btn ${checked ? 'enabled' : 'disable'}" id="${item.id}">Delete</button>
       </li>`;
     itemsList.innerHTML += li; // Append the new item to the list
+    time += .1
   }  
   attachDeleteHandlers(); // Attach handlers to delete buttons
   attachCheckboxHandlers(); // Attach handlers to checkboxes   
