@@ -55,14 +55,15 @@ const showItems = pageNumber => {
     const li = `
       <li class="items__li ${completedClass}">
         <p>${item.title}</p>
+        <input type="text" class="items__input noVisible" value = "${item.title}">
         <input type="checkbox" id="checkbox" name="checkbox" ${checked ? "checked" : ""}>
         <button class="items__btn ${checked ? 'enabled' : 'disable'}" id="${item.id}">Delete</button>
       </li>`;
     itemsList.innerHTML += li; // Append the new item to the list
-  }
-
+  }  
   attachDeleteHandlers(); // Attach handlers to delete buttons
-  attachCheckboxHandlers(); // Attach handlers to checkboxes
+  attachCheckboxHandlers(); // Attach handlers to checkboxes   
+  edit();  
 };
 
 // Function to display page numbers
@@ -102,6 +103,7 @@ const addNewItem = () => {
     input.value = ''; // Clear input field
     showItems(currentPage); // Update the displayed items
     showPageNumbers(); // Update the displayed page numbers
+    edit()
   }
 };
 
@@ -130,6 +132,44 @@ const attachCheckboxHandlers = () => {
   });
 };
 
+//Function to Edit
+const edit = ()=>{
+const pText = document.querySelectorAll('.items__li p')
+const inputText = document.querySelectorAll('.items__input')
+const btnId = document.querySelectorAll('.items__btn')
+let idBtn
+let inputindex
+
+
+pText.forEach((e, index)=>{
+  e.addEventListener('click', ()=>{
+    e.classList.add('noVisible');
+    inputText[index].classList.remove('noVisible');
+    inputText[index].focus();
+    idBtn = btnId[index].id
+    console.log("Index do botao"+idBtn);
+    inputindex = index
+    console.log("Index da Input" + inputindex);
+  })
+})
+
+document.addEventListener('click',(event)=>{
+  pText.forEach((e, index)=>{
+    const item = e.parentElement; 
+    if(!item.contains(event.target)){                
+      inputText[index].classList.add('noVisible');
+      e.classList.remove('noVisible');         
+    }
+  })
+  if(inputText[inputindex].value !==data[idBtn-1].title){
+    data[idBtn-1].title = inputText[inputindex].value;
+    idBtn = ''
+    inputText = ''
+    showItems(currentPage)    
+  }
+} 
+)}
+
 // Attach event listener for adding new item
 document.querySelector('#submit').addEventListener('click', event => {
   event.preventDefault();
@@ -139,3 +179,7 @@ document.querySelector('#submit').addEventListener('click', event => {
 // Initial display of items and page numbers
 showItems(currentPage);
 showPageNumbers();
+
+
+
+

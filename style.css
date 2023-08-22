@@ -145,6 +145,18 @@ ul {
   background-color: white;
 }
 
+.items__input{
+  width: 85%;
+  height: 100%;
+  border: none;
+  flex-wrap: wrap;
+  align-items: center;
+  align-content: center;
+  padding-left: 1rem;
+  font-size: 1.2rem;
+}
+
+
 .enable{
   pointer-events: all;
 }
@@ -180,6 +192,9 @@ ul {
   cursor: pointer;
 }
 
+.noVisible{
+  display: none !important;
+}
 
 
 
