@@ -164,10 +164,8 @@ const edit = () => {
       inputText[index].focus();
 
       // Store the ID of the clicked button and input index
-      idBtn = btnId[index].id;
-      console.log("Button index: " + idBtn);
-      inputindex = index;
-      console.log("Input index: " + inputindex);
+      idBtn = btnId[index].id;      
+      inputindex = index;      
     });
   });
 
@@ -192,6 +190,7 @@ const edit = () => {
       idBtn = '';
       inputindex = '';
       // Call the showItems function with the current page
+      ctrlAnimation = 0;
       showItems(currentPage);
     }
   });
