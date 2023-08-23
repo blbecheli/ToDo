@@ -27,6 +27,7 @@
 // Initialize variables
 let data = [];  // Store fetched data
 let currentPage = 1;  // Current page number
+let ctrlAnimation = 1
 
 // Fetch data from URL
 fetch('https://jsonplaceholder.typicode.com/todos')
@@ -45,14 +46,15 @@ const showItems = pageNumber => {
 
   const startIndex = (pageNumber - 1) * 10;
   const endIndex = startIndex + 10;
-  let time = 1
+  let time
+  ctrlAnimation == 1 ? time = 1 : time = -11
 
   // Loop through items to create and display HTML elements
   for (let i = startIndex; i < endIndex && i < data.length; i++) {
     
     const item = data[i];
     const completedClass = item.completed ? 'done' : 'noDone';
-    const checked = item.completed;
+    const checked = item.completed;    
 
     const li = `
       <li class="items__li ${completedClass}" style="animation: slideInFromRight ${time}s ease-in-out">
@@ -64,6 +66,7 @@ const showItems = pageNumber => {
     itemsList.innerHTML += li; // Append the new item to the list
     time += .1
   }  
+  ctrlAnimation = 1
   attachDeleteHandlers(); // Attach handlers to delete buttons
   attachCheckboxHandlers(); // Attach handlers to checkboxes   
   edit();  
@@ -115,6 +118,7 @@ const attachDeleteHandlers = () => {
   const deleteButtons = document.querySelectorAll('.items__btn');
   deleteButtons.forEach(button => {
     button.addEventListener('click', () => {
+      ctrlAnimation = 0;
       const itemId = parseInt(button.id);
       data = data.filter(item => item.id !== itemId); // Remove item from data
       showItems(currentPage); // Update the displayed items
@@ -128,6 +132,7 @@ const attachCheckboxHandlers = () => {
   const checkboxes = document.querySelectorAll('#checkbox');
   checkboxes.forEach((checkbox, index) => {
     checkbox.addEventListener('change', () => {
+      ctrlAnimation = 0;
       const dataIndex = currentPage * 10 - 10 + index;
       data[dataIndex].completed = checkbox.checked; // Update completion status
       showItems(currentPage); // Update the displayed items
