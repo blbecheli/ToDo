@@ -24,105 +24,149 @@
 */
 
 
-$(document).ready(function () {
-  let data = [];
-  let currentPage = 1;
-
-  // Fetch data from URL using jQuery
-  $.getJSON('https://jsonplaceholder.typicode.com/todos', function (jsonData) {
+$(document).ready(function() {
+    let data = [];
+    let currentPage = 1;
+    let ctrlAnimation = 1;
+  
+    $.ajax({
+      url: 'https://jsonplaceholder.typicode.com/todos',
+      method: 'GET',
+      dataType: 'json'
+    })
+    .done(function(jsonData) {
       data = jsonData;
       showItems(currentPage);
       showPageNumbers();
-  }).fail(function (error) {
+    })
+    .fail(function(error) {
       console.error('Error:', error);
-  });
-
-  // Function to display items based on page number
-  const showItems = pageNumber => {
+    });
+  
+    const showItems = pageNumber => {
       const itemsList = $('#items');
       itemsList.empty();
-
+  
       const startIndex = (pageNumber - 1) * 10;
-      const endIndex = Math.min(startIndex + 10, data.length);
-
-      for (let i = startIndex; i < endIndex; i++) {
-          const item = data[i];
-          const completedClass = item.completed ? 'done' : 'noDone';
-          const checked = item.completed;
-
-          const li = `
-              <li class="items__li ${completedClass}">
-                  <p>${item.title}</p>
-                  <input type="checkbox" class="checkbox" ${checked ? "checked" : ""}>
-                  <button class="items__btn ${checked ? 'enabled' : 'disable'}" data-id="${item.id}">Delete</button>
-              </li>`;
-          itemsList.append(li);
+      const endIndex = startIndex + 10;
+      let time = ctrlAnimation === 1 ? 1 : -11;
+  
+      for (let i = startIndex; i < endIndex && i < data.length; i++) {
+        const item = data[i];
+        const completedClass = item.completed ? 'done' : 'noDone';
+        const checked = item.completed;
+  
+        const li = `
+          <li class="items__li ${completedClass}" style="animation: slideInFromRight ${time}s ease-in-out">
+            <p>${item.title}</p>
+            <input type="text" class="items__input noVisible" value="${item.title}">
+            <input type="checkbox" class="checkbox" ${checked ? "checked" : ""}>
+            <button class="items__btn ${checked ? 'enabled' : 'disable'}" id="${item.id}">Delete</button>
+          </li>`;
+        itemsList.append(li);
+        time += 0.1;
       }
-
+      ctrlAnimation = 1;
       attachDeleteHandlers();
       attachCheckboxHandlers();
-  };
-
-  // Function to display page numbers
-  const showPageNumbers = () => {
+      edit();
+    };
+  
+    const showPageNumbers = () => {
       const itemsNumber = $('.items__number');
       itemsNumber.empty();
-
+  
       const pageCount = Math.ceil(data.length / 10);
+  
       for (let i = 1; i <= pageCount; i++) {
-          const pageNumber = `<span class="items__span">${i}</span>`;
-          itemsNumber.append(pageNumber);
+        const pageNumber = `<span class="items__span">${i}</span>`;
+        itemsNumber.append(pageNumber);
       }
-
-      $('.items__span').click(function () {
-          currentPage = parseInt($(this).text());
-          showItems(currentPage);
+  
+      $('.items__span').click(function(event) {
+        currentPage = parseInt($(event.target).text());
+        showItems(currentPage);
       });
-  };
-
-  // Function to add a new item
-  const addNewItem = () => {
-      const inputValue = $('#new-text-input').val().trim();
+    };
+  
+    const addNewItem = () => {
+      const input = $('#new-text-input');
+      const inputValue = input.val().trim();
       if (inputValue) {
-          const newItem = {
-              userId: 1,
-              id: data.length + 1,
-              title: inputValue,
-              completed: false
-          };
-          data.unshift(newItem);
-          $('#new-text-input').val('');
-          showItems(currentPage);
-          showPageNumbers();
+        const newItem = {
+          userId: 1,
+          id: data.length + 1,
+          title: inputValue,
+          completed: false
+        };
+        data.unshift(newItem);
+        input.val('');
+        ctrlAnimation = 0;
+        showItems(currentPage);
+        showPageNumbers();
+        edit();
       }
-  };
-
-  // Function to attach delete handlers
-  const attachDeleteHandlers = () => {
-      $('.items__btn').click(function () {
-          const itemId = parseInt($(this).data('id'));
-          data = data.filter(item => item.id !== itemId);
-          showItems(currentPage);
-          showPageNumbers();
+    };
+  
+    const attachDeleteHandlers = () => {
+      $('.items__btn').click(function() {
+        ctrlAnimation = 0;
+        const itemId = parseInt($(this).attr('id'));
+        data = data.filter(item => item.id !== itemId);
+        showItems(currentPage);
+        showPageNumbers();
       });
-  };
-
-  // Function to attach checkbox handlers
-  const attachCheckboxHandlers = () => {
-      $('.checkbox').change(function () {
-          const dataIndex = currentPage * 10 - 10 + $('.checkbox').index(this);
-          data[dataIndex].completed = this.checked;
-          showItems(currentPage);
+    };
+  
+    const attachCheckboxHandlers = () => {
+      $('.checkbox').change(function() {
+        ctrlAnimation = 0;
+        const dataIndex = currentPage * 10 - 10 + $('.checkbox').index(this);
+        data[dataIndex].completed = $(this).prop('checked');
+        showItems(currentPage);
       });
-  };
-
-  // Attach event listener for adding new item
-  $('#submit').click(function (event) {
+    };
+  
+    const edit = () => {
+      const pText = $('.items__li p');
+      const inputText = $('.items__input');
+      const btnId = $('.items__btn');
+      let idBtn;
+      let inputindex;
+  
+      pText.click(function() {
+        const index = pText.index(this);
+        pText.addClass('noVisible');
+        inputText.eq(index).removeClass('noVisible').focus();
+        idBtn = btnId.eq(index).attr('id');
+        inputindex = index;
+      });
+  
+      $(document).click(function(event) {
+        pText.each(function(index, e) {
+          const item = $(e).parent();
+          if (!item.is(event.target) && item.has(event.target).length === 0) {
+            inputText.eq(index).addClass('noVisible');
+            $(e).removeClass('noVisible');
+          }
+        });
+  
+        if (inputText.eq(inputindex).val() !== data[idBtn - 1].title) {
+          data[idBtn - 1].title = inputText.eq(inputindex).val();
+          idBtn = '';
+          inputindex = '';
+          ctrlAnimation = 0;
+          showItems(currentPage);
+        }
+      });
+    };
+  
+    $('#submit').click(function(event) {
       event.preventDefault();
       addNewItem();
+    });
+  
+    showItems(currentPage);
+    showPageNumbers();
   });
-
-  // Initial display of items and page numbers
-  showItems(currentPage);
-  showPageNumbers();
-});
+  

@@ -107,6 +107,7 @@ const addNewItem = () => {
     };
     data.unshift(newItem); // Add new item to the beginning
     input.value = ''; // Clear input field
+    ctrlAnimation = 0
     showItems(currentPage); // Update the displayed items
     showPageNumbers(); // Update the displayed page numbers
     edit()
